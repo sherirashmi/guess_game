@@ -6,14 +6,18 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 
+def reset_game():
+    session["number"] = random.randint(1, 100)
+    session["guesses"] = 0
+    session["clicked"] = []
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
 
-    # Initialize game state
+    # Initialize session
     if "number" not in session:
-        session["number"] = random.randint(1, 100)
-        session["guesses"] = 0
-        session["clicked"] = []
+        reset_game()
         session["best_score"] = None
 
     message = ""
@@ -21,37 +25,51 @@ def home():
 
     if request.method == "POST":
 
-        guess = int(request.form["guess"])
-        our_num = session["number"]
+        # =========================
+        # CASE 1: Guess button click
+        # =========================
+        if "guess" in request.form:
 
-        # track guesses
-        session["guesses"] += 1
+            guess = int(request.form["guess"])
+            our_num = session["number"]
 
-        # track clicked buttons
-        clicked = session.get("clicked", [])
-        if guess not in clicked:
-            clicked.append(guess)
-        session["clicked"] = clicked
+            session["guesses"] += 1
 
-        if guess < our_num:
-            message = "Guess a higher number"
+            clicked = session.get("clicked", [])
+            if guess not in clicked:
+                clicked.append(guess)
+            session["clicked"] = clicked
 
-        elif guess > our_num:
-            message = "Guess a lower number"
+            if guess < our_num:
+                message = "Guess a higher number"
 
-        else:
-            message = f"You guessed it right in {session['guesses']} tries!"
+            elif guess > our_num:
+                message = "Guess a lower number"
 
-            # best score logic
-            best = session.get("best_score")
-            if best is None or session["guesses"] < best:
-                session["best_score"] = session["guesses"]
-
-            # ask name if first win ever
-            if "player_name" not in session:
-                show_name_input = True
             else:
-                show_name_input = False
+                message = f"You guessed it right in {session['guesses']} tries!"
+
+                # update best score
+                best = session.get("best_score")
+                if best is None or session["guesses"] < best:
+                    session["best_score"] = session["guesses"]
+
+                # ask name only first time ever
+                if "player_name" not in session:
+                    show_name_input = True
+                else:
+                    reset_game()
+
+        # =========================
+        # CASE 2: Name submission
+        # =========================
+        elif "name" in request.form:
+
+            session["player_name"] = request.form["name"]
+
+            reset_game()
+
+            message = f"Welcome {session['player_name']}! New game started."
 
     return render_template(
         "index.html",
@@ -66,18 +84,16 @@ def home():
 @app.route("/save_name", methods=["POST"])
 def save_name():
     session["player_name"] = request.form["name"]
+    reset_game()
 
-    # reset game after saving name
-    session["number"] = random.randint(1, 100)
-    session["guesses"] = 0
-    session["clicked"] = []
-
-    return render_template("index.html",
-                           message=f"Welcome {session['player_name']}! New game started.",
-                           clicked=[],
-                           guesses=0,
-                           best=session.get("best_score"),
-                           show_name_input=False)
+    return render_template(
+        "index.html",
+        message=f"Welcome {session['player_name']}! New game started.",
+        clicked=[],
+        guesses=0,
+        best=session.get("best_score"),
+        show_name_input=False
+    )
 
 
 if __name__ == "__main__":
