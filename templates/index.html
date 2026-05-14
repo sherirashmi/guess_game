@@ -13,7 +13,7 @@
 
         .box{
             background: white;
-            width: 400px;
+            width: 420px;
             margin: auto;
             padding: 30px;
             border-radius: 10px;
@@ -28,15 +28,24 @@
         }
 
         button{
-            padding: 10px;
+            padding: 8px;
             cursor: pointer;
             border: none;
-            background: #e0e0e0;
             border-radius: 5px;
+            background: #e0e0e0;
         }
 
         button:hover{
             background: #c0c0c0;
+        }
+
+        .clicked{
+            background: orange !important;
+            color: white;
+        }
+
+        .info{
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -46,19 +55,33 @@
 <div class="box">
 
     <h1>Guess The Number</h1>
-    <p>Click a number between 1 and 100</p>
+
+    <p>{{ message }}</p>
+
+    <div class="info">
+        <p>Guesses: {{ guesses }}</p>
+        <p>Best Score: {{ best }}</p>
+    </div>
+
+    {% if show_name_input %}
+        <form action="/save_name" method="POST">
+            <input type="text" name="name" placeholder="Enter your name" required>
+            <button type="submit">Save</button>
+        </form>
+    {% endif %}
 
     <form method="POST">
         <div class="grid">
             {% for i in range(1, 101) %}
-                <button type="submit" name="guess" value="{{ i }}">
+                <button type="submit"
+                        name="guess"
+                        value="{{ i }}"
+                        class="{% if i in clicked %}clicked{% endif %}">
                     {{ i }}
                 </button>
             {% endfor %}
         </div>
     </form>
-
-    <h3>{{ message }}</h3>
 
 </div>
 
