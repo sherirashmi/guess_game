@@ -4,62 +4,63 @@
     <title>Guessing Game</title>
 
     <style>
-
         body{
             font-family: Arial;
             background-color: #f2f2f2;
             text-align: center;
-            margin-top: 100px;
+            margin-top: 50px;
         }
 
         .box{
             background: white;
-            width: 350px;
+            width: 400px;
             margin: auto;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px gray;
         }
 
-        input{
-            padding: 10px;
-            width: 80%;
-            margin-top: 10px;
+        .grid{
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-top: 20px;
         }
 
         button{
-            padding: 10px 20px;
-            margin-top: 15px;
+            padding: 10px;
             cursor: pointer;
+            border: none;
+            background: #e0e0e0;
+            border-radius: 5px;
         }
 
+        button:hover{
+            background: #c0c0c0;
+        }
     </style>
-
 </head>
 
 <body>
 
-    <div class="box">
+<div class="box">
 
-        <h1>Guess The Number</h1>
+    <h1>Guess The Number</h1>
+    <p>Click a number between 1 and 100</p>
 
-        <p>Enter a number between 1 and 100</p>
+    <form method="POST">
+        <div class="grid">
+            {% for i in range(1, 101) %}
+                <button type="submit" name="guess" value="{{ i }}">
+                    {{ i }}
+                </button>
+            {% endfor %}
+        </div>
+    </form>
 
-        <form method="POST">
+    <h3>{{ message }}</h3>
 
-            <input type="number" name="guess" required>
-
-            <br>
-
-            <button type="submit">
-                Guess
-            </button>
-
-        </form>
-
-        <h3>{{ message }}</h3>
-
-    </div>
+</div>
 
 </body>
 </html>
